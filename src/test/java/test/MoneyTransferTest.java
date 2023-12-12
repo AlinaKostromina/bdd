@@ -1,7 +1,7 @@
 package test;
 
 import com.codeborne.selenide.Configuration;
-import net.jodah.failsafe.internal.util.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import data.DataHelper;
@@ -28,22 +28,23 @@ class MoneyTransferTest {
         var transferInfo = DataHelper.getCardTransferInfo("1000");
         var transferPage = dashboardPage.transferToCard(transferInfo.getId1());
         transferPage.addMoneyToCard1(transferInfo);
+
         var actualBalance1 = dashboardPage.getCardBalance(transferInfo.getId1());
         var expectedBalance1 = 11000;
-        Assert.isTrue(actualBalance1 == expectedBalance1, "Ошибка баланса карты 1");
+        Assertions.assertEquals(actualBalance1, expectedBalance1, "Ошибка баланса карты 1");
 
         var actualBalance2 = dashboardPage.getCardBalance(transferInfo.getId2());
         var expectedBalance2 = 9000;
-        Assert.isTrue(actualBalance2 == expectedBalance2, "Ошибка баланса карты 2");
+        Assertions.assertEquals(actualBalance2, expectedBalance2, "Ошибка баланса карты 2");
 
         dashboardPage.transferToCard(transferInfo.getId1()).cleanUp();
         dashboardPage.transferToCard(transferInfo.getId2()).addMoneyToCard2(transferInfo);
         var actualBalance3 = dashboardPage.getCardBalance(transferInfo.getId1());
         var expectedBalance3 = 10000;
-        Assert.isTrue(actualBalance3 == expectedBalance3, "Ошибка баланса карты 1");
+        Assertions.assertEquals(actualBalance3, expectedBalance3, "Ошибка баланса карты 1");
 
         var actualBalance4 = dashboardPage.getCardBalance(transferInfo.getId1());
         var expectedBalance4 = 10000;
-        Assert.isTrue(actualBalance4 == expectedBalance4, "Ошибка баланса карты 2");
+        Assertions.assertEquals(actualBalance4, expectedBalance4, "Ошибка баланса карты 2");
     }
 }
