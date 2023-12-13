@@ -30,8 +30,4 @@ public class TransferPage {
         fromInput.setValue(card.getCardNumber());
         transferButton.click();
     }
-
-    public void findErrorMessage(String expectedText) {
-        errorMessage.shouldHave(Condition.exactText(expectedText), Duration.ofSeconds(15)).shouldBe(Condition.visible);
-    }
 }

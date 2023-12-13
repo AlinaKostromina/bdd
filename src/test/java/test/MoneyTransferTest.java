@@ -1,6 +1,5 @@
 package test;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import page.DashboardPage;
 import page.LoginPage;
@@ -13,17 +12,14 @@ class MoneyTransferTest {
     LoginPage loginPage;
     DashboardPage dashboardPage;
 
-    @BeforeEach
-    void setup() {
+    @Test
+    void shouldTransferMoneyFromOneCardToSecondCard() {
         loginPage = open("http://localhost:9999", LoginPage.class);
         var authInfo = getAuthInfo();
         var verificationPage = loginPage.validLogin(authInfo);
         var verifacationCode = getVerificationCode();
         dashboardPage = verificationPage.validVerify(verifacationCode);
-    }
 
-    @Test
-    void shouldTransferMoneyFromOneCardToSecondCard() {
         var firstCardInfo = getFirstCard();
         var secondCardInfo = getSecondCard();
         var firstCardBalance = dashboardPage.getCardBalance(firstCardInfo);
