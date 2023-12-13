@@ -12,7 +12,6 @@ import static com.codeborne.selenide.Selenide.$;
 public class TransferPage {
     private final SelenideElement fromInput = $("[data-test-id='from'] input");
     private final SelenideElement transferHead = $(byText("Пополнение карты"));
-    private final SelenideElement errorMessage = $("[data-test-id='error-message']");
     private SelenideElement amountInputNew = $("[data-test-id=amount] input");
     private SelenideElement transferButton = $("[data-test-id=action-transfer] span");
 
