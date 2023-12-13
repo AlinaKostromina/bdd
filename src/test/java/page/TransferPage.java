@@ -1,48 +1,37 @@
 package page;
 
+import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
-import org.openqa.selenium.Keys;
 import data.DataHelper;
 
-import static com.codeborne.selenide.Condition.visible;
+import java.time.Duration;
+
+import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selenide.$;
 
 public class TransferPage {
-    private SelenideElement heading = $("#root > div > h1");
-    private SelenideElement amount = $("[data-test-id=amount] input");
-    private SelenideElement from = $("[data-test-id=from] input");
-    private SelenideElement transferButton = $("#root > div > form > button.button.button_view_extra.button_size_s.button_theme_alfa-on-white");
-    private SelenideElement cancelButton = $("#root > div > form > button:nth-child(3)");
+    private final SelenideElement fromInput = $("[data-test-id='from'] input");
+    private final SelenideElement transferHead = $(byText("Пополнение карты"));
+    private final SelenideElement errorMessage = $("[data-test-id='error-message']");
+    private SelenideElement amountInputNew = $("[data-test-id=amount] input");
+    private SelenideElement transferButton = $("[data-test-id=action-transfer] span");
 
     public TransferPage() {
-        heading.shouldBe(visible);
+        transferHead.shouldBe(Condition.visible);
     }
 
-    public void addMoneyToCard1(DataHelper.TransferInfo data) {
-        amount.setValue(data.getAmount());
-        from.setValue(data.getNumber2());
+    public DashboardPage makeValidTransfer(String amountToTransfer, DataHelper.Card card) {
+        makeTransfer(amountToTransfer, card);
+        return new DashboardPage();
+    }
+
+    public void makeTransfer(String amountToTransfer, DataHelper.Card card) {
+        amountInputNew.setValue(amountToTransfer);
+        fromInput.setValue(card.getCardNumber());
         transferButton.click();
     }
 
-    public void addMoneyToCard2(DataHelper.TransferInfo data) {
-        amount.setValue(data.getAmount());
-        from.setValue(data.getNumber1());
-        transferButton.click();
-    }
-
-    public void cleanUp() {
-        amount.doubleClick();
-        amount.sendKeys(Keys.DELETE);
-        amount.doubleClick();
-        amount.sendKeys(Keys.DELETE);
-        from.doubleClick();
-        from.sendKeys(Keys.DELETE);
-        from.doubleClick();
-        from.sendKeys(Keys.DELETE);
-        from.doubleClick();
-        from.sendKeys(Keys.DELETE);
-        from.doubleClick();
-        from.sendKeys(Keys.DELETE);
-        cancelButton.click();
+    public void findErrorMessage(String expectedText) {
+        errorMessage.shouldHave(Condition.exactText(expectedText), Duration.ofSeconds(15)).shouldBe(Condition.visible);
     }
 }

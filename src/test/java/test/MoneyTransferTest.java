@@ -1,50 +1,45 @@
 package test;
 
-import com.codeborne.selenide.Configuration;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import data.DataHelper;
-import page.LoginPageV2;
+import page.DashboardPage;
+import page.LoginPage;
 
 import static com.codeborne.selenide.Selenide.open;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static data.DataHelper.*;
 
 class MoneyTransferTest {
+    LoginPage loginPage;
+    DashboardPage dashboardPage;
 
     @BeforeEach
     void setup() {
-        Configuration.holdBrowserOpen = true;
+        loginPage = open("http://localhost:9999", LoginPage.class);
+        var authInfo = getAuthInfo();
+        var verificationPage = loginPage.validLogin(authInfo);
+        var verifacationCode = getVerificationCode();
+        dashboardPage = verificationPage.validVerify(verifacationCode);
     }
 
     @Test
-    void shouldTransferMoneyBetweenOwnCardsV2() {
-        open("http://localhost:9999");
+    void shouldTransferMoneyFromOneCardToSecondCard() {
+        var firstCardInfo = getFirstCard();
+        var secondCardInfo = getSecondCard();
+        var firstCardBalance = dashboardPage.getCardBalance(firstCardInfo);
+        var secondCardBalance = dashboardPage.getCardBalance(secondCardInfo);
+        var amount = generateValidAmount(firstCardBalance);
 
-        var loginPage = new LoginPageV2();
-        var authInfo = DataHelper.getAuthInfo();
-        var verificationPage = loginPage.validLogin(authInfo);
-        var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
-        var dashboardPage = verificationPage.validVerify(verificationCode);
-        var transferInfo = DataHelper.getCardTransferInfo("1000");
-        var transferPage = dashboardPage.transferToCard(transferInfo.getId1());
-        transferPage.addMoneyToCard1(transferInfo);
+        var expectedBalanceFirstCard = firstCardBalance - amount;
+        var expectedBalanceSecondCard = secondCardBalance + amount;
 
-        var actualBalance1 = dashboardPage.getCardBalance(transferInfo.getId1());
-        var expectedBalance1 = 11000;
-        Assertions.assertEquals(actualBalance1, expectedBalance1, "Ошибка баланса карты 1");
+        var transferPage = dashboardPage.selectCardToTransfer(secondCardInfo);
+        dashboardPage = transferPage.makeValidTransfer(String.valueOf(amount), firstCardInfo);
 
-        var actualBalance2 = dashboardPage.getCardBalance(transferInfo.getId2());
-        var expectedBalance2 = 9000;
-        Assertions.assertEquals(actualBalance2, expectedBalance2, "Ошибка баланса карты 2");
+        var actualBalanceFirstCard = dashboardPage.getCardBalance(firstCardInfo);
+        var actualBalanceSecondCard = dashboardPage.getCardBalance(secondCardInfo);
 
-        dashboardPage.transferToCard(transferInfo.getId1()).cleanUp();
-        dashboardPage.transferToCard(transferInfo.getId2()).addMoneyToCard2(transferInfo);
-        var actualBalance3 = dashboardPage.getCardBalance(transferInfo.getId1());
-        var expectedBalance3 = 10000;
-        Assertions.assertEquals(actualBalance3, expectedBalance3, "Ошибка баланса карты 1");
-
-        var actualBalance4 = dashboardPage.getCardBalance(transferInfo.getId1());
-        var expectedBalance4 = 10000;
-        Assertions.assertEquals(actualBalance4, expectedBalance4, "Ошибка баланса карты 2");
+        assertEquals(expectedBalanceFirstCard, actualBalanceFirstCard);
+        assertEquals(expectedBalanceSecondCard, actualBalanceSecondCard);
     }
 }
